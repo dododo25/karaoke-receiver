@@ -32,15 +32,25 @@ public class AdminPartsController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PostMapping(value = "/select")
-    public void selectGame(@RequestBody RequestGameData data) {
+    @PostMapping(value = "/selectGame")
+    public void selectGame(@RequestBody RequestGameModeData data) {
         details.setGameMode(data.gameMode);
+    }
+
+    @PostMapping(value = "/selectTrack")
+    public void selectTrack(@RequestBody RequestGameTrackData data) {
         details.setTrackId(data.trackId);
     }
 
     @PostMapping(value = "/answers")
-    public void selectGame(@RequestBody List<Boolean> values) {
+    public void trackAnswers(@RequestBody List<Boolean> values) {
         details.setAnswers(values);
+    }
+
+    @PostMapping(value = "/refresh")
+    public void refreshPages() {
+        details.setRefreshCount(details.getRefreshCount() + 1);
+        details.setRealRefreshCount(1);
     }
 
     public static class RequestCodeData {
@@ -52,15 +62,18 @@ public class AdminPartsController {
         }
     }
 
-    public static class RequestGameData {
+    public static class RequestGameModeData {
 
         private String gameMode;
-
-        private int trackId;
 
         public void setGameMode(String gameMode) {
             this.gameMode = gameMode;
         }
+    }
+
+    public static class RequestGameTrackData {
+
+        private int trackId;
 
         public void setTrackId(int trackId) {
             this.trackId = trackId;

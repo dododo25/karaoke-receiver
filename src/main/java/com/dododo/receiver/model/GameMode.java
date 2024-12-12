@@ -8,6 +8,10 @@ public class GameMode {
 
     private List<String> text;
 
+    private List<String> commands;
+
+    private List<String> answers;
+
     private List<List<String>> options;
 
     public String getSrc() {
@@ -16,6 +20,14 @@ public class GameMode {
 
     public List<String> getText() {
         return text;
+    }
+
+    public List<String> getCommands() {
+        return commands;
+    }
+
+    public List<String> getAnswers() {
+        return answers;
     }
 
     public List<List<String>> getOptions() {

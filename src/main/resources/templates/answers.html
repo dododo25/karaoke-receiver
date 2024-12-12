@@ -8,18 +8,21 @@
           crossorigin="anonymous">
     <style>
         .line {
-            font-size:2em;
+            font-size:2.4em;
             line-height:1em;
             font-weight:bold;
             color:#FAFAFA;
+            text-shadow: 1px 1px #757575, 1px -1px #757575, -1px -1px #757575, -1px 1px #757575;
         }
         .right {
             color: #00E676;
             text-decoration: underline;
+            text-shadow: 1px 1px #1B5E20, 1px -1px #1B5E20, -1px -1px #1B5E20, -1px 1px #1B5E20;
         }
         .wrong {
             color: #FF1744;
             text-decoration: underline;
+            text-shadow: 1px 1px #B71C1C, 1px -1px #B71C1C, -1px -1px #B71C1C, -1px 1px #B71C1C;
         }
     </style>
 </head>
@@ -28,6 +31,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
         const track = /*[[${track}]]*/ undefined;
+        const gameMode = /*[[${gameMode}]]*/ undefined;
         const answers = /*[[${answers}]]*/ undefined;
     /*]]>*/
 </script>
@@ -38,10 +42,10 @@
         let i = 0;
         let i0 = 0;
         
-        while (i < line.length - 1) {
+        while (i < line.length) {
             let j = i + 1;
 
-            while (j < line.length) {
+            while (j < line.length + 1) {
                 const match = line.substring(i, j).match(regex);
 
                 if (match) {
@@ -68,26 +72,27 @@
     };
 
     const linesElem = document.getElementById('lines');
+    const options = track.gameModes[gameMode].options;
 
-    for (let i = 0; i < track.questions.length; i++) {
+    for (let i = 0; i < options.length; i++) {
         const elem = document.createElement('div');
         elem.className = 'd-flex flex-column justify-content-center align-items-center';
 
-        if (i < track.questions.length - 1) {
+        if (i < options.length - 1) {
             elem.className += ' mb-5';
         }
 
-        for (let j = 0; j < track.questions[i].length; j++) {
+        for (let j = 0; j < options[i].length; j++) {
             const lineElem = document.createElement('p');
             lineElem.className = 'line';
 
-            for (let part of splitByRegex(/\{#\d+\}.*\{#\}/, track.questions[i][j])) {
+            for (let part of splitByRegex(/\{#\d+\}.*\{#\}/, options[i][j])) {
                 const match = part.match(/\{#(\d+)\}(.*)\{#\}/);
 
                 if (match) {
                     lineElem.innerHTML += '<span class="' + (answers[match[1] * 1] ? 'right' : 'wrong') + '">' + match[2] +  "</span>";
                 } else {
-                    lineElem.innerHTML += ' ' + part + ' ';
+                    lineElem.innerHTML += part + ' ';
                 }
             }
 
@@ -104,15 +109,20 @@
         xmlHttp.open("GET", url, false);
         xmlHttp.send(null);
 
-        return xmlHttp.responseText === "true";
+        return xmlHttp.responseText;
     };
 
     const interval = setInterval(() => {
-        const response = sendGet("/answers/ping");
+        const response = sendGet("/answers/ping") * 1;
 
-        if (!response) {
+        if (response > 0) {
             clearInterval(interval);
-            window.location = "/select";
+
+            if (response === 1) {
+                window.location = "/track";
+            } else {
+                window.location = "/select";
+            }
         }
     }, 100);
 </script>

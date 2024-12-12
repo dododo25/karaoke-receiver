@@ -1,10 +1,12 @@
 package com.dododo.receiver.controller;
 
+import com.dododo.receiver.model.GameDetails;
 import com.dododo.receiver.service.TrackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -12,6 +14,9 @@ public class TrackController {
 
     @Autowired
     private TrackService service;
+
+    @Autowired
+    private GameDetails details;
 
     @GetMapping(value = "/api/tracks")
     public List<TrackData> findAllTrackNames() {
@@ -22,6 +27,26 @@ public class TrackController {
                         .setArtist(t.getArtist())
                         .build())
                 .toList();
+    }
+
+    @GetMapping(value = "/api/tracks/active")
+    public List<TrackData> findAllActiveTracks() {
+        return details.getActiveTracks()
+                .stream()
+                .map(t -> new TrackData.Builder()
+                        .setId(t.getId())
+                        .setName(t.getName())
+                        .setArtist(t.getArtist())
+                        .build())
+                .toList();
+    }
+
+    @GetMapping(value = "/api/options/active")
+    public List<String> findAllActiveOptions() {
+        return service.findById(details.getTrackId())
+                .getGameModes()
+                .get(details.getGameMode())
+                .getAnswers();
     }
 
     public static class TrackData {

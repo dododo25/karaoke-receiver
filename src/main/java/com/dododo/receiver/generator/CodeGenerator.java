@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class CodeGenerator {
 
-    private static final Random RANDOM = new Random(1);
+    private static final Random RANDOM = new Random();
 
     public String generate() {
         List<String> parts = new ArrayList<>();

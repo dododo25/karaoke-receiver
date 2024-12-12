@@ -1,6 +1,5 @@
 package com.dododo.receiver.model;
 
-import java.util.List;
 import java.util.Map;
 
 public class Track {
@@ -10,8 +9,6 @@ public class Track {
     private String name;
 
     private String artist;
-
-    private List<String> commands;
 
     private Map<String, GameMode> gameModes;
 
@@ -25,10 +22,6 @@ public class Track {
 
     public String getArtist() {
         return artist;
-    }
-
-    public List<String> getCommands() {
-        return commands;
     }
 
     public Map<String, GameMode> getGameModes() {

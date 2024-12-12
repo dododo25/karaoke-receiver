@@ -3,6 +3,7 @@ package com.dododo.receiver.controller;
 import com.dododo.receiver.model.GameDetails;
 import com.dododo.receiver.service.CodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +21,15 @@ public class AdminPartsController {
     private GameDetails details;
 
     @PostMapping(value = "/join")
-    public void join(@RequestBody RequestCodeData data) {
-        details.setConnected(Objects.equals(service.get(), data.code));
+    public ResponseEntity<Object> join(@RequestBody RequestCodeData data) {
+        boolean res = Objects.equals(service.get(), data.code);
+
+        if (res) {
+            details.setConnected(Objects.equals(service.get(), data.code));
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping(value = "/select")

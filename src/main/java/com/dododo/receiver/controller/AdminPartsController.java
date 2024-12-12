@@ -1,0 +1,61 @@
+package com.dododo.receiver.controller;
+
+import com.dododo.receiver.model.GameDetails;
+import com.dododo.receiver.service.CodeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Objects;
+
+@RestController
+public class AdminPartsController {
+
+    @Autowired
+    private CodeService service;
+
+    @Autowired
+    private GameDetails details;
+
+    @PostMapping(value = "/join")
+    public void join(@RequestBody RequestCodeData data) {
+        details.setConnected(Objects.equals(service.get(), data.code));
+    }
+
+    @PostMapping(value = "/select")
+    public void selectGame(@RequestBody RequestGameData data) {
+        details.setGameMode(data.gameMode);
+        details.setTrackId(data.trackId);
+    }
+
+    @PostMapping(value = "/answers")
+    public void selectGame(@RequestBody List<Boolean> values) {
+        details.setAnswers(values);
+    }
+
+    public static class RequestCodeData {
+
+        private String code;
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+    }
+
+    public static class RequestGameData {
+
+        private String gameMode;
+
+        private int trackId;
+
+        public void setGameMode(String gameMode) {
+            this.gameMode = gameMode;
+        }
+
+        public void setTrackId(int trackId) {
+            this.trackId = trackId;
+        }
+    }
+}

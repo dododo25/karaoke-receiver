@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Karaoke</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="d-flex flex-column w-100 justify-content-center align-items-center" style="height:100vh;background-color:#388E3C">
+    <p style="font-size:18em;font-weight:bold;color:#FAFAFA" th:text="${{code}}" />
+    <p style="font-size:4em;font-weight:bold;color:#FAFAFA">Copy this code into your app</p>
+</div>
+</body>
+<script>
+    const sendGet = (url) => {
+        const xmlHttp = new XMLHttpRequest();
+
+        xmlHttp.open("GET", url, false);
+        xmlHttp.send(null);
+
+        return xmlHttp.responseText === "true";
+    };
+
+    const interval = setInterval(() => {
+        const response = sendGet("/ping");
+
+        if (response) {
+            clearInterval(interval);
+            window.location = "/select";
+        }
+    }, 100);
+</script>
+</html>

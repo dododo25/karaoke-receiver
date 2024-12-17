@@ -49,8 +49,7 @@ public class AdminPartsController {
 
     @PostMapping(value = "/refresh")
     public void refreshPages() {
-        details.setRefreshCount(details.getRefreshCount() + 1);
-        details.setRealRefreshCount(1);
+        details.setRefreshed(true);
     }
 
     public static class RequestCodeData {

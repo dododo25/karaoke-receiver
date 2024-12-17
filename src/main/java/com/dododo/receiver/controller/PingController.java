@@ -18,27 +18,16 @@ public class PingController {
 
     @GetMapping(value = "/select/ping")
     public String selectPing() {
-        return details.getGameMode() == null ? "false" : "true";
-    }
-
-    @GetMapping(value = "/track/ping")
-    public String trackPing() {
-        return details.getTrackId() == -1 ? "false" : "true";
+        return (details.getGameMode() == null || details.getTrackId() == -1) ? "false" : "true";
     }
 
     @GetMapping(value = "/play/ping")
-    public String playPing() {
-        return details.getAnswers() == null ? "false" : "true";
+    public int playPing() {
+        return details.isRefreshed() ? (details.getAnswers() == null ? 2 : 1) : 0;
     }
 
     @GetMapping(value = "/answers/ping")
-    public int answersPing() {
-        if (details.getRealRefreshCount() == 0) {
-            return 0;
-        }
-
-        details.setRealRefreshCount(0);
-
-        return details.getRefreshCount();
+    public String answersPing() {
+        return details.isRefreshed() ? "true" : "false";
     }
 }

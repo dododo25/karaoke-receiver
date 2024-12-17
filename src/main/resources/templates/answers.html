@@ -109,20 +109,15 @@
         xmlHttp.open("GET", url, false);
         xmlHttp.send(null);
 
-        return xmlHttp.responseText;
+        return xmlHttp.responseText === 'true';
     };
 
     const interval = setInterval(() => {
         const response = sendGet("/answers/ping") * 1;
 
-        if (response > 0) {
+        if (response) {
             clearInterval(interval);
-
-            if (response === 1) {
-                window.location = "/track";
-            } else {
-                window.location = "/select";
-            }
+            window.location = "/select";
         }
     }, 100);
 </script>

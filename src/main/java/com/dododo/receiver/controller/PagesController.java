@@ -2,7 +2,6 @@ package com.dododo.receiver.controller;
 
 import com.dododo.receiver.generator.CodeGenerator;
 import com.dododo.receiver.model.GameDetails;
-import com.dododo.receiver.model.Track;
 import com.dododo.receiver.service.CodeService;
 import com.dododo.receiver.service.TrackService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,17 +11,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Controller
 public class PagesController {
-
-    private static final Random RANDOM = new Random();
 
     @Autowired
     private CodeService codeService;
@@ -39,7 +33,7 @@ public class PagesController {
     @GetMapping("/")
     public String mainPage(Model model, HttpServletRequest request, HttpServletResponse response) {
         details.setConnected(false);
-        details.setRefreshCount(0);
+        details.setRefreshed(false);
         details.setGameMode(null);
         details.setTrackId(-1);
         details.setAnswers(null);
@@ -55,7 +49,7 @@ public class PagesController {
 
     @GetMapping(value = "/select")
     public String selectGamePage(Model model) {
-        details.setRefreshCount(0);
+        details.setRefreshed(false);
         details.setGameMode(null);
         details.setTrackId(-1);
         details.setAnswers(null);
@@ -67,42 +61,10 @@ public class PagesController {
         return "redirect:/";
     }
 
-    @GetMapping(value = "/track")
-    public String trackPage(Model model) {
-        details.setTrackId(-1);
-        details.setAnswers(null);
-
-        if (details.isConnected() && details.getGameMode() != null) {
-            List<Integer> ids = trackService.findAll()
-                    .stream()
-                    .map(Track::getId)
-                    .toList();
-
-            int index1 = RANDOM.nextInt(ids.size());
-            int index2 = RANDOM.nextInt(ids.size());
-
-            while (index1 == index2) {
-                index1 = RANDOM.nextInt(ids.size());
-                index2 = RANDOM.nextInt(ids.size());
-            }
-
-            Track t1 = trackService.findById(ids.get(index1));
-            Track t2 = trackService.findById(ids.get(index2));
-
-            details.setActiveTracks(Arrays.asList(t1, t2));
-
-            model.addAttribute("track1", t1);
-            model.addAttribute("track2", t2);
-
-            return "track";
-        }
-
-        return "redirect:/select";
-    }
-
     @GetMapping(value = "/play")
     public String playPage(Model model) {
         details.setAnswers(null);
+        details.setRefreshed(false);
 
         if (details.isConnected() && details.getTrackId() != -1) {
             model.addAttribute("gameMode", details.getGameMode());
@@ -115,6 +77,8 @@ public class PagesController {
 
     @GetMapping(value = "/answers")
     public String answersPage(Model model) {
+        details.setRefreshed(false);
+
         if (Objects.equals(details.getGameMode(), "karaoke")) {
             return "redirect:/select";
         }

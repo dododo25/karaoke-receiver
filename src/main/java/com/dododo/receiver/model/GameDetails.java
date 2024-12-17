@@ -8,15 +8,11 @@ public class GameDetails {
 
     private String gameMode;
 
-    private List<Track> activeTracks;
-
     private int trackId;
 
     private List<Boolean> answers;
 
-    private int refreshCount;
-
-    private int realRefreshCount;
+    private boolean refreshed;
 
     public boolean isConnected() {
         return connected;
@@ -32,14 +28,6 @@ public class GameDetails {
 
     public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
-    }
-
-    public List<Track> getActiveTracks() {
-        return activeTracks;
-    }
-
-    public void setActiveTracks(List<Track> activeTracks) {
-        this.activeTracks = activeTracks;
     }
 
     public int getTrackId() {
@@ -58,19 +46,11 @@ public class GameDetails {
         this.answers = answers;
     }
 
-    public int getRefreshCount() {
-        return refreshCount;
+    public boolean isRefreshed() {
+        return refreshed;
     }
 
-    public void setRefreshCount(int refreshCount) {
-        this.refreshCount = refreshCount;
-    }
-
-    public int getRealRefreshCount() {
-        return realRefreshCount;
-    }
-
-    public void setRealRefreshCount(int realRefreshCount) {
-        this.realRefreshCount = realRefreshCount;
+    public void setRefreshed(boolean refreshed) {
+        this.refreshed = refreshed;
     }
 }

@@ -12,6 +12,7 @@
             font-weight:bold;
             color:transparent;
             background-clip:text!important;
+            z-index: 2;
         }
 
         #countdown {
@@ -19,27 +20,43 @@
             font-weight:bold;
             color:#FAFAFA;
         }
+
+        @media screen and (min-width: 2520px) {
+            #lines {
+                transform: scale(1.5);
+                max-width: 1700px;
+            }
+
+            #countdown {
+                transform: scale(1.5);
+            }
+        }
     </style>
 </head>
-<body class="d-flex flex-column w-100 justify-content-center align-items-center" th:style="'height:100vh;background:url(' + @{/images/background_1.jpg} + ') no-repeat center center fixed;background-size:cover'">
+<body class="d-flex flex-column justify-content-center align-items-center" style="width:100vw;height:100vh">
 <audio id="audio">
     <source th:src="${track.gameModes.get(gameMode).src}" type="audio/mpeg">
 </audio>
-<div class="m-3">
-    <div id="play">
-        <svg width="173.20" height="200" viewBox="0 0 86.6 100">
-            <path d="M 0 0 l 86.6 50, -86.6 50 z" fill="#FAFAFA" />
-        </svg>
+<div id="background" class="position-absolute" style="width:100vw;height:100vh;z-index:0">
+</div>
+<div style="z-index:1">
+    <div class="m-3">
+        <div id="play">
+            <svg width="173.20" height="200" viewBox="0 0 86.6 100">
+                <path d="M 0 0 l 86.6 50, -86.6 50 z" fill="#FAFAFA" />
+            </svg>
+        </div>
+        <div id="lines" class="collapse">
+            <div class="position-absolute" style="width:100vw;height:70vh;z-index:1;background-color: #2121213F"></div>
+            <p class="text-center">
+                <span id="first-line" class="line position-relative p-1"></span>
+            </p>
+            <p class="text-center">
+                <span id="second-line" class="line position-relative p-1"></span>
+            </p>
+        </div>
+        <p id="countdown" class="collapse"></p>
     </div>
-    <div id="lines" class="collapse">
-        <p class="text-center">
-            <span id="first-line" class="line p-1"></span>
-        </p>
-        <p class="text-center">
-            <span id="second-line" class="line p-1"></span>
-        </p>
-    </div>
-    <p id="countdown" class="collapse"></p>
 </div>
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -54,9 +71,10 @@
         xmlHttp.open("GET", url, false);
         xmlHttp.send(null);
 
-        return xmlHttp.responseText === "true";
+        return xmlHttp.responseText * 1;
     };
 
+    const backgroundElem = document.getElementById('background');
     const linesElem      = document.getElementById('lines');
     const countdownElem  = document.getElementById('countdown');
     const firstLineElem  = document.getElementById('first-line');
@@ -136,6 +154,21 @@
         }
     }
 
+    const max = 35;
+    let backgroundIndex = Math.floor(Math.random() * max) + 1;
+    let newElem1 = document.createElement('div');
+    let newElem2 = document.createElement('div');
+
+    newElem1.className = 'w-100 h-100 position-absolute';
+    newElem1.style['z-index'] = 1;
+
+    newElem2.className = 'w-100 h-100';
+    newElem2.style['background'] = 'url("/images/background_' + backgroundIndex + '.jpg") no-repeat center center fixed';
+    newElem2.style['background-size'] = 'cover';
+
+    newElem1.appendChild(newElem2);;
+    backgroundElem.appendChild(newElem1);
+
     playElem.addEventListener('click', async () => {
         playElem.className = 'collapse';
 
@@ -163,7 +196,10 @@
         let w2;
         let w3;
 
-        const interval = await setInterval(() => {
+        let interval;
+        let interval2;
+
+        interval = await setInterval(() => {
             if (countdown >= 0 && (pauseInit - pause) % 1000 == 0) {
                 if (countdown > 0) {
                     countdownElem.innerHTML = countdown;
@@ -176,24 +212,6 @@
 
             if (pause > 0) {
                 pause -= 10;
-                return;
-            }
-
-            if (line >= text.length) {
-                clearInterval(interval);
-
-                audioElem.pause();
-                audioElem.currentTime = 0;
-
-                const interval2 = setInterval(() => {
-                    const response = sendGet("/play/ping");
-
-                    if (response) {
-                        clearInterval(interval2);
-                        window.location = "/answers";
-                    }
-                }, 10);
-
                 return;
             }
 
@@ -218,6 +236,30 @@
                 }
 
                 commandIndex++;
+            }
+
+            if (line >= text.length && !params) {
+                clearInterval(interval);
+                clearInterval(interval2);
+
+                audioElem.pause();
+                audioElem.currentTime = 0;
+
+                const interval3 = setInterval(() => {
+                    const response = sendGet("/play/ping");
+
+                    if (response > 0) {
+                        clearInterval(interval3);
+
+                        if (response === 1) {
+                            window.location = "/answers";
+                        } else if (response === 2) {
+                            window.location = "/select";
+                        }
+                    }
+                }, 10);
+
+                return;
             }
 
             if (countdownStarted) {
@@ -251,6 +293,9 @@
                 w2 = secondLineElem.offsetWidth * 1;
                 w3 = w1;
 
+                console.log(line, w1);
+                console.log(line + 1, w2);
+
                 firstLineElem.style  = 'background:linear-gradient(90deg, rgb(0, 200, 83) 0, rgb(0, 200, 83) ' + p1 + 'px, rgb(255, 255, 255) 0);';
                 secondLineElem.style = 'background:linear-gradient(90deg, rgb(0, 200, 83) 0, rgb(0, 200, 83) ' + p2 + 'px, rgb(255, 255, 255) 0);';
 
@@ -259,7 +304,8 @@
 
             if (hide) {
                 hide = false;
-                linesElem.className = 'd-flex flex-column justify-content-center align-items-center collapse';
+                keepShowing = false;
+                linesElem.className = 'collapse';
 
                 return;
             }
@@ -301,6 +347,9 @@
                     w2 = secondLineElem.offsetWidth * 1;
                     w3 = w1;
 
+                    console.log(line, w1);
+                    console.log(line + 1, w2);
+
                     firstLineElem.style  = 'background:linear-gradient(90deg, rgb(0, 200, 83) 0, rgb(0, 200, 83) ' + p1 + 'px, rgb(255, 255, 255) 0);';
                     secondLineElem.style = 'background:linear-gradient(90deg, rgb(0, 200, 83) 0, rgb(0, 200, 83) ' + p2 + 'px, rgb(255, 255, 255) 0);';
                 } else {
@@ -315,6 +364,41 @@
                 }
             }
         }, 10);
+
+        interval2 = setInterval(async () => {
+            backgroundIndex = Math.floor(Math.random() * max) + 1;
+
+            let opacity = 1;
+
+            newElem1 = document.createElement('div');
+            newElem2 = document.createElement('div');
+
+            newElem1.className = 'w-100 h-100 position-absolute';
+            newElem1.style['z-index'] = 0;
+
+            newElem2.className = 'w-100 h-100';
+            newElem2.style['background'] = 'url("/images/background_' + backgroundIndex + '.jpg") no-repeat center center fixed';
+            newElem2.style['background-size'] = 'cover';
+
+            newElem1.appendChild(newElem2);
+            backgroundElem.appendChild(newElem1);
+
+            await new Promise(resolve => {
+                const interval3 = setInterval(() => {
+                    if (opacity <= 0) {
+                        newElem1.style['z-index'] = 1;
+
+                        backgroundElem.removeChild(backgroundElem.firstElementChild);
+                        clearInterval(interval3);
+
+                        return;
+                    }
+
+                    backgroundElem.firstElementChild.style['opacity'] = opacity;
+                    opacity -= 0.01;
+                }, 10);
+            });
+        }, 60000);
     });
 </script>
 </body>

@@ -49,12 +49,12 @@ public class IndexController {
     }
 
     @GetMapping("/ping")
-    public ResponseEntity<Void> ping(HttpSession session) throws InterruptedException {
+    public ResponseEntity<Integer> ping(HttpSession session) throws InterruptedException {
         boolean connected = Optional.ofNullable(session.getAttribute("connected"))
                 .map(Boolean.class::cast)
                 .orElse(false);
 
-        while (!connected) {
+        for (int i = 0; i < 10 && !connected; i++) {
             Thread.sleep(1000);
 
             connected = Optional.ofNullable(session.getAttribute("connected"))
@@ -62,7 +62,7 @@ public class IndexController {
                     .orElse(false);
         }
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(connected ? 0 : 1);
     }
 
 

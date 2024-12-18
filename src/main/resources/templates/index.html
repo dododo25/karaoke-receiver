@@ -40,11 +40,7 @@
 
         xmlHttp.open("GET", "/ping", true);
         xmlHttp.onload = e => {
-            if (xmlHttp.statusCode !== 200) {
-                return;
-            }
-
-            if (xmlHttp.statusText * 1 === 0) {
+            if (xmlHttp.statusCode === 200 && xmlHttp.statusText * 1 === 0) {
                 window.location = '/select';
             } else {
                 ping();

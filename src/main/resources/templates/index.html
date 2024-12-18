@@ -34,12 +34,12 @@
 </body>
 <script>
     const ping = () => {
-        console.log('ping');
-
         const xmlHttp = new XMLHttpRequest();
 
         xmlHttp.open("GET", "/ping", true);
         xmlHttp.onload = e => {
+            console.log(xmlHttp.statusCode, xmlHttp.statusText);
+
             if (xmlHttp.statusCode === 200 && xmlHttp.statusText * 1 === 0) {
                 window.location = '/select';
             } else {

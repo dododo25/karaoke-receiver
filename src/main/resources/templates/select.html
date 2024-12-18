@@ -35,7 +35,7 @@
 
         xmlHttp.open("GET", "/select/ping", true);
         xmlHttp.onload = e => {
-            if (xmlHttp.statusCode === 200) {
+            if (xmlHttp.status === 200 && xmlHttp.responseText * 1 === 0) {
                 window.location = '/play';
             } else {
                 ping();

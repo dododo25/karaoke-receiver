@@ -382,15 +382,19 @@
         xmlHttp.open("GET", "/play/ping", true);
         xmlHttp.timeout = 86400000;
         xmlHttp.onload = e => {
-            if (xmlHttp.statusCode === 200) {
-                if (xmlHttp.responseText * 1 === 0) {
+            if (xmlHttp.status === 200) {
+                const r = xmlHttp.responseText * 1;
+
+                if (r === 1) {
                     window.location = '/select';
-                } else {
+                    return;
+                } else if (r === 2) {
                     window.location = '/answers';
+                    return;
                 }
-            } else {
-                ping();
-            }
+            } 
+            
+            ping();
         };
         xmlHttp.onerror = e => console.error(xmlHttp.statusText);
 

@@ -9,9 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -52,7 +49,7 @@ public class PlayController {
                 .map(Boolean.class::cast)
                 .orElse(false);
 
-        while (!refreshed) {
+        for (int i = 0; i < 10 && !refreshed; i++) {
             Thread.sleep(1000);
 
             refreshed = Optional.ofNullable(session.getAttribute("refreshed"))
@@ -60,16 +57,10 @@ public class PlayController {
                     .orElse(false);
         }
 
-        Enumeration<String> enumeration = session.getAttributeNames();
-        Map<String, Object> values = new HashMap<>();
-
-        while (enumeration.hasMoreElements()) {
-            String key = enumeration.nextElement();
-            values.put(key, session.getAttribute(key));
+        if (refreshed) {
+            return ResponseEntity.ok(session.getAttribute("answers") == null ? 1 : 2);
         }
 
-        System.out.println(values);
-
-        return ResponseEntity.ok(session.getAttribute("answers") == null ? 0 : 1);
+        return ResponseEntity.ok(0);
     }
 }

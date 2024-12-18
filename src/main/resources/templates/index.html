@@ -38,8 +38,6 @@
 
         xmlHttp.open("GET", "/ping", true);
         xmlHttp.onload = e => {
-            console.log(xmlHttp.status, xmlHttp.responseText);
-
             if (xmlHttp.status === 200 && xmlHttp.responseText * 1 === 0) {
                 window.location = '/select';
             } else {

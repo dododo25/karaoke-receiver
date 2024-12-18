@@ -1,5 +1,6 @@
 package com.dododo.receiver.controller;
 
+import com.dododo.receiver.model.GameMode;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,11 +33,17 @@ public class SelectGameController {
     }
 
     @GetMapping("/select/ping")
-    public ResponseEntity<Void> ping(HttpSession session) throws InterruptedException {
-        while (session.getAttribute("gameMode") == null || session.getAttribute("trackId") == null) {
+    public ResponseEntity<Integer> ping(HttpSession session) throws InterruptedException {
+        GameMode mode = (GameMode) session.getAttribute("gameMode");
+        Integer trackId = (Integer) session.getAttribute("trackId");
+
+        for (int i = 0; i < 10 && (mode == null || trackId == null); i++) {
             Thread.sleep(1000);
+
+            mode = (GameMode) session.getAttribute("gameMode");
+            trackId = (Integer) session.getAttribute("trackId");
         }
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(mode == null || trackId == null ? 1 : 0);
     }
 }

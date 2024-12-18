@@ -48,12 +48,12 @@ public class AnswersController {
     }
 
     @GetMapping(value = "/answers/ping")
-    public ResponseEntity<Void> ping(HttpSession session) throws InterruptedException {
+    public ResponseEntity<Integer> ping(HttpSession session) throws InterruptedException {
         boolean refreshed = Optional.ofNullable(session.getAttribute("refreshed"))
                 .map(Boolean.class::cast)
                 .orElse(false);
 
-        while (!refreshed) {
+        for (int i = 0; i < 10 && !refreshed; i++) {
             Thread.sleep(1000);
 
             refreshed = Optional.ofNullable(session.getAttribute("refreshed"))
@@ -61,6 +61,6 @@ public class AnswersController {
                     .orElse(false);
         }
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(refreshed ? 0 : 1);
     }
 }

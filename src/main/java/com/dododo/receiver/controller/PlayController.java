@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.Enumeration;
 import java.util.Optional;
 
 @Controller
@@ -55,6 +56,22 @@ public class PlayController {
             refreshed = Optional.ofNullable(session.getAttribute("refreshed"))
                     .map(Boolean.class::cast)
                     .orElse(false);
+
+            Enumeration<String> enumeration = session.getAttributeNames();
+
+            while (enumeration.hasMoreElements()) {
+                String key = enumeration.nextElement();
+
+                System.out.printf("%s %s%n", key, session.getAttribute(key));
+            }
+        }
+
+        Enumeration<String> enumeration = session.getAttributeNames();
+
+        while (enumeration.hasMoreElements()) {
+            String key = enumeration.nextElement();
+
+            System.out.printf("%s %s%n", key, session.getAttribute(key));
         }
 
         return ResponseEntity.ok(session.getAttribute("answers") == null ? 0 : 1);

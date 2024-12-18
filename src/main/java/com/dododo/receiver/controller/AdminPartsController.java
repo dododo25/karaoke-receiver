@@ -29,8 +29,8 @@ public class AdminPartsController {
 
     private final TokensHolder tokensHolder;
 
-    @PostMapping(value = "/join")
-    public ResponseEntity<Object> join(@RequestBody RequestCodeDataDTO dto) {
+    @PostMapping("/join")
+    public ResponseEntity<Object> join(@RequestBody CodeRequestDTO dto) {
         String token = tokensHolder.get(dto.code);
         HttpSession session = sessionsHolder.get(token);
 
@@ -43,7 +43,7 @@ public class AdminPartsController {
         return ResponseEntity.ok(new JSONObject().put("token", token).toString());
     }
 
-    @PostMapping(value = "/select")
+    @PostMapping("/select")
     public ResponseEntity<Void> select(@RequestBody @Validated(BasicInfo.class) RequestGameModeDTO dto) {
         HttpSession session = sessionsHolder.get(dto.token);
 
@@ -57,7 +57,7 @@ public class AdminPartsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/answers")
+    @PostMapping("/answers")
     public ResponseEntity<Void> answers(@RequestBody RequestAnswersDTO dto) {
         HttpSession session = sessionsHolder.get(dto.token);
 
@@ -70,7 +70,7 @@ public class AdminPartsController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/refresh")
+    @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@RequestBody TokenRequestDTO dto) {
         HttpSession session = sessionsHolder.get(dto.getToken());
 
@@ -84,7 +84,7 @@ public class AdminPartsController {
     }
 
     @Setter
-    public static class RequestCodeDataDTO {
+    public static class CodeRequestDTO {
 
         private String code;
 

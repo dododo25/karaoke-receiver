@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,14 +23,14 @@ public class TrackController {
 
     private final TrackService service;
 
-    @GetMapping(value = "/api/tracks")
+    @GetMapping("/api/tracks")
     public List<TrackResponseDTO> findAllTrackNames() {
         return service.findAll().stream()
                 .map(TrackResponseDTO::create)
                 .toList();
     }
 
-    @GetMapping(value = "/api/options/active")
+    @PostMapping("/api/options/active")
     public ResponseEntity<List<String>> findAllActiveOptions(@RequestBody TokenRequestDTO dto) {
         HttpSession session = sessionsHolder.get(dto.getToken());
 

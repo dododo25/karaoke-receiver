@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class TrackController {
     }
 
     @GetMapping(value = "/api/options/active")
-    public ResponseEntity<List<String>> findAllActiveOptions(TokenRequestDTO dto) {
+    public ResponseEntity<List<String>> findAllActiveOptions(@RequestBody TokenRequestDTO dto) {
         HttpSession session = sessionsHolder.get(dto.token);
 
         if (session == null) {

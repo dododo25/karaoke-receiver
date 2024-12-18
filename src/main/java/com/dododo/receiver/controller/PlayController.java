@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -56,23 +58,17 @@ public class PlayController {
             refreshed = Optional.ofNullable(session.getAttribute("refreshed"))
                     .map(Boolean.class::cast)
                     .orElse(false);
-
-            Enumeration<String> enumeration = session.getAttributeNames();
-
-            while (enumeration.hasMoreElements()) {
-                String key = enumeration.nextElement();
-
-                System.out.printf("%s %s%n", key, session.getAttribute(key));
-            }
         }
 
         Enumeration<String> enumeration = session.getAttributeNames();
+        Map<String, Object> values = new HashMap<>();
 
         while (enumeration.hasMoreElements()) {
             String key = enumeration.nextElement();
-
-            System.out.printf("%s %s%n", key, session.getAttribute(key));
+            values.put(key, session.getAttribute(key));
         }
+
+        System.out.println(values);
 
         return ResponseEntity.ok(session.getAttribute("answers") == null ? 0 : 1);
     }

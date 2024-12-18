@@ -33,17 +33,22 @@
 </div>
 </body>
 <script>
-    const xmlHttp = new XMLHttpRequest();
+    const ping = () => {
+        const xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.open("GET", "/ping", true);
-    xmlHttp.timeout = 86400000;
-    xmlHttp.onload = e => {
-        window.location = '/select';
-    };
-    xmlHttp.onerror = e => {
-        console.error(xmlHttp.statusText);
+        xmlHttp.open("GET", "/ping", true);
+        xmlHttp.timeout = 86400000;
+        xmlHttp.onload = e => {
+            window.location = '/select';
+        };
+        xmlHttp.onerror = e => {
+            if (xmlHttp.statusCode === 503) {
+                ping();
+            }
+        };
+
+        xmlHttp.send(null);
     };
 
-    xmlHttp.send(null);
 </script>
 </html>

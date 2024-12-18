@@ -65,7 +65,6 @@ public class IndexController {
         return ResponseEntity.ok(connected ? 0 : 1);
     }
 
-
     public String generateCode() {
         List<String> parts = new ArrayList<>();
 

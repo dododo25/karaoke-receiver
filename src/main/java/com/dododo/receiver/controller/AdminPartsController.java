@@ -1,5 +1,6 @@
 package com.dododo.receiver.controller;
 
+import com.dododo.receiver.controller.dto.TokenRequestDTO;
 import com.dododo.receiver.converter.GameModeConverter;
 import com.dododo.receiver.holder.SessionsHolder;
 import com.dododo.receiver.holder.TokensHolder;
@@ -70,8 +71,8 @@ public class AdminPartsController {
     }
 
     @PostMapping(value = "/refresh")
-    public ResponseEntity<Void> refresh(@RequestBody RequestTokenDataDTO dto) {
-        HttpSession session = sessionsHolder.get(dto.token);
+    public ResponseEntity<Void> refresh(@RequestBody TokenRequestDTO dto) {
+        HttpSession session = sessionsHolder.get(dto.getToken());
 
         if (session == null) {
             return ResponseEntity.badRequest().build();
@@ -86,13 +87,6 @@ public class AdminPartsController {
     public static class RequestCodeDataDTO {
 
         private String code;
-
-    }
-
-    @Setter
-    public static class RequestTokenDataDTO {
-
-        private String token;
 
     }
 

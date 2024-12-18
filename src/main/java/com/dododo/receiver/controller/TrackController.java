@@ -1,12 +1,12 @@
 package com.dododo.receiver.controller;
 
+import com.dododo.receiver.controller.dto.TokenRequestDTO;
 import com.dododo.receiver.holder.SessionsHolder;
 import com.dododo.receiver.model.GameMode;
 import com.dododo.receiver.model.Track;
 import com.dododo.receiver.service.TrackService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import lombok.Setter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,26 +31,19 @@ public class TrackController {
 
     @GetMapping(value = "/api/options/active")
     public ResponseEntity<List<String>> findAllActiveOptions(@RequestBody TokenRequestDTO dto) {
-        HttpSession session = sessionsHolder.get(dto.token);
+        HttpSession session = sessionsHolder.get(dto.getToken());
 
         if (session == null) {
             return ResponseEntity.badRequest().build();
         }
 
         GameMode gameMode = (GameMode) session.getAttribute("gameMode");
-        int trackId = (int) session.getAttribute("trackId");
+        Integer trackId = (Integer) session.getAttribute("trackId");
 
         return ResponseEntity.ok(service.findById(trackId)
                 .getModes()
                 .get(gameMode.name().toLowerCase())
                 .getOptions());
-    }
-
-    @Setter
-    public static class TokenRequestDTO {
-
-        private String token;
-
     }
 
     public static class TrackResponseDTO {

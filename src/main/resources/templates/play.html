@@ -35,7 +35,7 @@
 </head>
 <body class="d-flex flex-column justify-content-center align-items-center" style="width:100vw;height:100vh">
 <audio id="audio">
-    <source th:src="${track.gameModes.get(gameMode).src}" type="audio/mpeg">
+    <source th:src="${data.src}" type="audio/mpeg">
 </audio>
 <div id="background" class="position-absolute" style="width:100vw;height:100vh;z-index:0">
 </div>
@@ -60,20 +60,10 @@
 </div>
 <script th:inline="javascript">
     /*<![CDATA[*/
-        const track = /*[[${track}]]*/ undefined;
-        const gameMode = /*[[${gameMode}]]*/ undefined;
+        const data = /*[[${data}]]*/ undefined;
     /*]]>*/
 </script>
 <script>
-    const sendGet = (url) => {
-        const xmlHttp = new XMLHttpRequest();
-
-        xmlHttp.open("GET", url, false);
-        xmlHttp.send(null);
-
-        return xmlHttp.responseText * 1;
-    };
-
     const backgroundElem = document.getElementById('background');
     const linesElem      = document.getElementById('lines');
     const countdownElem  = document.getElementById('countdown');
@@ -82,11 +72,11 @@
     const audioElem      = document.getElementById('audio');
     const playElem       = document.getElementById('play');
 
-    const text = track.gameModes[gameMode].text;
+    const text = data.text;
 
     const commands = [];
 
-    for (let c of track.gameModes[gameMode].commands) {
+    for (let c of data.commands) {
         const m1 = c.match(/\{(\d+);(\d+(\.\d+)?)\}speed=(\d+(\.\d+)?)/);
         const m2 = c.match(/\{(\d+);(\d+(\.\d+)?)\}pause=(\d+(\.\d+)?)/);
         const m3 = c.match(/\{(\d+);(\d+(\.\d+)?)\}countdown=(\d+(\.\d+)?)/);
@@ -174,7 +164,6 @@
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        audioElem.volume = 0.5;
         audioElem.play();
 
         let commandIndex = 0;
@@ -244,20 +233,6 @@
 
                 audioElem.pause();
                 audioElem.currentTime = 0;
-
-                const interval3 = setInterval(() => {
-                    const response = sendGet("/play/ping");
-
-                    if (response > 0) {
-                        clearInterval(interval3);
-
-                        if (response === 1) {
-                            window.location = "/answers";
-                        } else if (response === 2) {
-                            window.location = "/select";
-                        }
-                    }
-                }, 10);
 
                 return;
             }
@@ -400,6 +375,22 @@
             });
         }, 60000);
     });
+
+    const xmlHttp = new XMLHttpRequest();
+
+    xmlHttp.open("GET", "/play/ping", true);
+    xmlHttp.onload = e => {
+        if (xmlHttp.responseText * 1 === 0) {
+            window.location = '/select';
+        } else {
+            window.location = '/answers';
+        }
+    };
+    xmlHttp.onerror = e => {
+        console.error(xmlHttp.statusText);
+    };
+
+    xmlHttp.send(null);
 </script>
 </body>
 </html>

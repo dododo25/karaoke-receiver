@@ -1,42 +1,58 @@
 package com.dododo.receiver.controller;
 
-import com.dododo.receiver.model.GameDetails;
+import com.dododo.receiver.holder.SessionsHolder;
+import com.dododo.receiver.model.GameMode;
+import com.dododo.receiver.model.Track;
 import com.dododo.receiver.service.TrackService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 public class TrackController {
 
-    @Autowired
-    private TrackService service;
+    private final SessionsHolder sessionsHolder;
 
-    @Autowired
-    private GameDetails details;
+    private final TrackService service;
 
     @GetMapping(value = "/api/tracks")
-    public List<TrackData> findAllTrackNames() {
+    public List<TrackResponseDTO> findAllTrackNames() {
         return service.findAll().stream()
-                .map(t -> new TrackData.Builder()
-                        .setId(t.getId())
-                        .setName(t.getName())
-                        .setArtist(t.getArtist())
-                        .build())
+                .map(TrackResponseDTO::create)
                 .toList();
     }
 
     @GetMapping(value = "/api/options/active")
-    public List<String> findAllActiveOptions() {
-        return service.findById(details.getTrackId())
-                .getGameModes()
-                .get(details.getGameMode())
-                .getAnswers();
+    public ResponseEntity<List<String>> findAllActiveOptions(TokenRequestDTO dto) {
+        HttpSession session = sessionsHolder.get(dto.token);
+
+        if (session == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        GameMode gameMode = (GameMode) session.getAttribute("gameMode");
+        int trackId = (int) session.getAttribute("trackId");
+
+        return ResponseEntity.ok(service.findById(trackId)
+                .getModes()
+                .get(gameMode.name().toLowerCase())
+                .getOptions());
     }
 
-    public static class TrackData {
+    @Setter
+    public static class TokenRequestDTO {
+
+        private String token;
+
+    }
+
+    public static class TrackResponseDTO {
 
         private int id;
 
@@ -68,38 +84,14 @@ public class TrackController {
             this.artist = artist;
         }
 
-        public static class Builder {
+        public static TrackResponseDTO create(Track track) {
+            TrackResponseDTO dto = new TrackResponseDTO();
 
-            private int id;
+            dto.setId(track.getId());
+            dto.setName(track.getName());
+            dto.setArtist(track.getArtist());
 
-            private String name;
-
-            private String artist;
-
-            public Builder setId(int id) {
-                this.id = id;
-                return this;
-            }
-
-            public Builder setName(String name) {
-                this.name = name;
-                return this;
-            }
-
-            public Builder setArtist(String artist) {
-                this.artist = artist;
-                return this;
-            }
-
-            public TrackData build() {
-                TrackData result = new TrackData();
-
-                result.setId(id);
-                result.setName(name);
-                result.setArtist(artist);
-
-                return result;
-            }
+            return dto;
         }
     }
 }

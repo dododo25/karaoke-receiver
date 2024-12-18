@@ -1,7 +1,10 @@
 package com.dododo.receiver.model;
 
+import lombok.Getter;
+
 import java.util.Map;
 
+@Getter
 public class Track {
 
     private int id;
@@ -10,21 +13,6 @@ public class Track {
 
     private String artist;
 
-    private Map<String, GameMode> gameModes;
+    private Map<String, Data> modes;
 
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public Map<String, GameMode> getGameModes() {
-        return gameModes;
-    }
 }

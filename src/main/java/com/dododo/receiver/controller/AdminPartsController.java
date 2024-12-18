@@ -1,81 +1,121 @@
 package com.dododo.receiver.controller;
 
-import com.dododo.receiver.model.GameDetails;
-import com.dododo.receiver.service.CodeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dododo.receiver.converter.GameModeConverter;
+import com.dododo.receiver.holder.SessionsHolder;
+import com.dododo.receiver.holder.TokensHolder;
+import com.dododo.receiver.model.BasicInfo;
+import com.dododo.receiver.model.GameMode;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.persistence.Convert;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
+@AllArgsConstructor
 public class AdminPartsController {
 
-    @Autowired
-    private CodeService service;
+    private final SessionsHolder sessionsHolder;
 
-    @Autowired
-    private GameDetails details;
+    private final TokensHolder tokensHolder;
 
     @PostMapping(value = "/join")
-    public ResponseEntity<Object> join(@RequestBody RequestCodeData data) {
-        boolean res = Objects.equals(service.get(), data.code);
+    public ResponseEntity<Object> join(@RequestBody RequestCodeDataDTO dto) {
+        String token = tokensHolder.get(dto.code);
+        HttpSession session = sessionsHolder.get(token);
 
-        if (res) {
-            details.setConnected(Objects.equals(service.get(), data.code));
-            return ResponseEntity.ok().build();
+        if (session == null) {
+            return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.badRequest().build();
+        session.setAttribute("connected", true);
+
+        return ResponseEntity.ok(new JSONObject().put("token", token).toString());
     }
 
-    @PostMapping(value = "/selectGame")
-    public void selectGame(@RequestBody RequestGameModeData data) {
-        details.setGameMode(data.gameMode);
-    }
+    @PostMapping(value = "/select")
+    public ResponseEntity<Void> select(@RequestBody @Validated(BasicInfo.class) RequestGameModeDTO dto) {
+        HttpSession session = sessionsHolder.get(dto.token);
 
-    @PostMapping(value = "/selectTrack")
-    public void selectTrack(@RequestBody RequestGameTrackData data) {
-        details.setTrackId(data.trackId);
+        if (session == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        session.setAttribute("gameMode", dto.gameMode);
+        session.setAttribute("trackId", dto.trackId);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/answers")
-    public void trackAnswers(@RequestBody List<Boolean> values) {
-        details.setAnswers(values);
+    public ResponseEntity<Void> answers(@RequestBody RequestAnswersDTO dto) {
+        HttpSession session = sessionsHolder.get(dto.token);
+
+        if (session == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        session.setAttribute("answers", dto.values);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/refresh")
-    public void refreshPages() {
-        details.setRefreshed(true);
+    public ResponseEntity<Void> refresh(@RequestBody RequestTokenDataDTO dto) {
+        HttpSession session = sessionsHolder.get(dto.token);
+
+        if (session == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        session.setAttribute("refreshed", true);
+
+        return ResponseEntity.ok().build();
     }
 
-    public static class RequestCodeData {
+    @Setter
+    public static class RequestCodeDataDTO {
 
         private String code;
 
-        public void setCode(String code) {
-            this.code = code;
-        }
     }
 
-    public static class RequestGameModeData {
+    @Setter
+    public static class RequestTokenDataDTO {
 
-        private String gameMode;
+        private String token;
 
-        public void setGameMode(String gameMode) {
-            this.gameMode = gameMode;
-        }
     }
 
-    public static class RequestGameTrackData {
+    @Setter
+    public static class RequestGameModeDTO {
 
-        private int trackId;
+        @NotEmpty(message = "Invalid token value", groups = BasicInfo.class)
+        private String token;
 
-        public void setTrackId(int trackId) {
-            this.trackId = trackId;
-        }
+        @Convert(converter = GameModeConverter.class)
+        private GameMode gameMode;
+
+        @NotNull(message = "Invalid trackId value", groups = BasicInfo.class)
+        private Integer trackId;
+    }
+
+    @Setter
+    public static class RequestAnswersDTO {
+
+        @NotEmpty(message = "Invalid token value", groups = BasicInfo.class)
+        private String token;
+
+        @NotEmpty(groups = BasicInfo.class)
+        private List<String> values;
     }
 }

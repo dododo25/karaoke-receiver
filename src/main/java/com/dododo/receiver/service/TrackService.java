@@ -7,31 +7,31 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class TrackService {
 
-    private final List<Track> tracks;
+    private final Map<Integer, Track> tracks;
 
     public TrackService() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         TypeReference<List<Track>> typeReference = new TypeReference<>() {};
 
         try (InputStream inputStream = TrackService.class.getResourceAsStream("/tracks.json")) {
-            this.tracks = Collections.unmodifiableList(mapper.readValue(inputStream, typeReference));
+            this.tracks = mapper.readValue(inputStream, typeReference).stream()
+                    .collect(Collectors.toMap(Track::getId, Function.identity()));
         }
     }
 
     public List<Track> findAll() {
-        return tracks;
+        return List.copyOf(tracks.values());
     }
 
     public Track findById(int id) {
-        return tracks.stream()
-                .filter(v -> v.getId() == id)
-                .findAny()
-                .orElse(null);
+        return tracks.getOrDefault(id, null);
     }
 }

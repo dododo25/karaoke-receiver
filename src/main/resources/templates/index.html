@@ -39,9 +39,11 @@
         xmlHttp.open("GET", "/ping", true);
         xmlHttp.onload = e => {
             console.log(xmlHttp, e);
-            window.location = '/select';
+            //window.location = '/select';
         };
         xmlHttp.onerror = e => {
+            console.log(xmlHttp, e);
+            
             if (xmlHttp.statusCode === 503) {
                 ping();
             }

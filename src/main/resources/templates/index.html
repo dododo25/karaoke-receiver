@@ -38,16 +38,13 @@
 
         xmlHttp.open("GET", "/ping", true);
         xmlHttp.onload = e => {
-            console.log(xmlHttp, e);
-            //window.location = '/select';
-        };
-        xmlHttp.onerror = e => {
-            console.log(xmlHttp, e);
-            
-            if (xmlHttp.statusCode === 503) {
+            if (xmlHttp.statusCode === 200) {
+                window.location = '/select';
+            } else {
                 ping();
             }
         };
+        xmlHttp.onerror = e => console.error(xmlHttp.statusText);
 
         xmlHttp.send(null);
     };

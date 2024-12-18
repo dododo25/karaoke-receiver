@@ -376,22 +376,28 @@
         }, 60000);
     });
 
-    const xmlHttp = new XMLHttpRequest();
+    const ping = () => {
+        const xmlHttp = new XMLHttpRequest();
 
-    xmlHttp.open("GET", "/play/ping", true);
-    xmlHttp.timeout = 86400000;
-    xmlHttp.onload = e => {
-        if (xmlHttp.responseText * 1 === 0) {
-            window.location = '/select';
-        } else {
-            window.location = '/answers';
-        }
-    };
-    xmlHttp.onerror = e => {
-        console.error(xmlHttp.statusText);
+        xmlHttp.open("GET", "/play/ping", true);
+        xmlHttp.timeout = 86400000;
+        xmlHttp.onload = e => {
+            if (xmlHttp.statusCode === 200) {
+                if (xmlHttp.responseText * 1 === 0) {
+                    window.location = '/select';
+                } else {
+                    window.location = '/answers';
+                }
+            } else {
+                ping();
+            }
+        };
+        xmlHttp.onerror = e => console.error(xmlHttp.statusText);
+
+        xmlHttp.send(null);
     };
 
-    xmlHttp.send(null);
+    ping();
 </script>
 </body>
 </html>

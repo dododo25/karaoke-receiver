@@ -34,17 +34,14 @@
         const xmlHttp = new XMLHttpRequest();
 
         xmlHttp.open("GET", "/select/ping", true);
-        xmlHttp.timeout = 86400000;
         xmlHttp.onload = e => {
-            window.location = '/play';
-        };
-        xmlHttp.onerror = e => {
-            console.log(xmlHttp.statusCode);
-
-            if (xmlHttp.statusCode === 503) {
+            if (xmlHttp.statusCode === 200) {
+                window.location = '/play';
+            } else {
                 ping();
             }
         };
+        xmlHttp.onerror = e => console.error(xmlHttp.statusText);
 
         xmlHttp.send(null);
     };

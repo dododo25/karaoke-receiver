@@ -379,6 +379,7 @@
     const xmlHttp = new XMLHttpRequest();
 
     xmlHttp.open("GET", "/play/ping", true);
+    xmlHttp.timeout = 86400000;
     xmlHttp.onload = e => {
         if (xmlHttp.responseText * 1 === 0) {
             window.location = '/select';

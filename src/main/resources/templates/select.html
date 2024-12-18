@@ -31,6 +31,7 @@
     const xmlHttp = new XMLHttpRequest();
 
     xmlHttp.open("GET", "/select/ping", true);
+    xmlHttp.timeout = 86400000;
     xmlHttp.onload = e => {
         window.location = '/play';
     };
